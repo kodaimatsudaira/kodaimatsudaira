@@ -1,0 +1,41 @@
+name: Update README cards
+
+on:
+  schedule:
+    - cron: "0 18 * * *" # 03:00 JST
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      # Pinned to a commit SHA (v2.1.0) because a PAT is passed to a third-party action
+      - name: Top languages (light)
+        uses: stats-organization/github-readme-stats-action@2c498845f71017821efaad14293ebc736156ef21
+        with:
+          card: top-langs
+          options: username=${{ github.repository_owner }}&layout=compact&langs_count=8&disable_animations=true
+          path: profile/top-langs.svg
+          token: ${{ secrets.CARDS_TOKEN }}
+          fail_on_error: true
+
+      - name: Top languages (dark)
+        uses: stats-organization/github-readme-stats-action@2c498845f71017821efaad14293ebc736156ef21
+        with:
+          card: top-langs
+          options: username=${{ github.repository_owner }}&layout=compact&langs_count=8&disable_animations=true&theme=github_dark
+          path: profile/top-langs-dark.svg
+          token: ${{ secrets.CARDS_TOKEN }}
+          fail_on_error: true
+
+      - name: Commit cards
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add profile/*.svg
+          git commit -m "Update README cards" || exit 0
+          git push
